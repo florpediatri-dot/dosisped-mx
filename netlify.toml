@@ -1,0 +1,48 @@
+# =============================================
+#  DosísPed MX — Netlify Configuration
+# =============================================
+
+[build]
+  publish = "."
+
+# ——— Headers de seguridad y PWA ———
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Service Worker — no cachear para siempre recibir el nuevo
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Content-Type = "application/javascript"
+
+# Manifest JSON
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type = "application/manifest+json"
+
+# Iconos — cache larga
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, immutable"
+
+# HTML principal
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# ——— Redirects (SPA) ———
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

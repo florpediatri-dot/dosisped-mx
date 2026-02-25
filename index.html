@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DosísPed MX — Calculadora Pediátrica</title>
+
+<!-- ===== PWA META TAGS ===== -->
+<meta name="application-name" content="DosísPed MX">
+<meta name="description" content="Calculadora de dosis pediátrica para médicos en México. Basada en guías CENETEC, NOM y Taketomo.">
+<meta name="theme-color" content="#00d4ff">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Apple / iOS PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DosísPed MX">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
+<link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+
+<!-- Microsoft / Windows -->
+<meta name="msapplication-TileImage" content="icons/icon-144.png">
+<meta name="msapplication-TileColor" content="#0a0f1e">
+<meta name="msapplication-navbutton-color" content="#00d4ff">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="DosísPed MX — Calculadora Pediátrica">
+<meta property="og:description" content="Calculadora de dosis pediátrica para médicos en México">
+<meta property="og:image" content="icons/icon-512.png">
+
+<!-- Manifest -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ===============================================
+   DESIGN SYSTEM — DosísPed MX
+   Tema: Dark Medical Precision
+   Fuentes: Sora + JetBrains Mono
+   =============================================== */
+:root {
+  --bg: #0a0f1e;
+  --surface: #111827;
+  --surface2: #1a2235;
+  --surface3: #1e2a40;
+  --border: #1e2d45;
+  --border2: #253348;
+  --accent: #00d4ff;
+  --accent-dim: rgba(0,212,255,0.15);
+  --accent2: #ff6b6b;
+  --accent3: #4ade80;
+  --accent4: #f59e0b;
+  --accent5: #a78bfa;
+  --text: #e2e8f0;
+  --text-muted: #4a5c75;
+  --text-dim: #8899b0;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  padding-top: var(--safe-top);
+  padding-bottom: calc(var(--safe-bottom) + 80px);
+}
+
+/* ——— AMBIENT BACKGROUND ——— */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 5% 10%, rgba(0,212,255,0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 60% at 95% 90%, rgba(99,102,241,0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 50% 50%, rgba(74,222,128,0.02) 0%, transparent 70%);
+}
+.grid-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* ——— HEADER ——— */
+header {
+  position: sticky; top: 0; z-index: 100;
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10,15,30,0.92);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo { display:flex; align-items:center; gap:12px; }
+
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #00d4ff 0%, #6366f1 100%);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 20px rgba(0,212,255,0.35);
+  animation: icon-pulse 4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes icon-pulse {
+  0%,100% { box-shadow: 0 0 20px rgba(0,212,255,0.35); }
+  50% { box-shadow: 0 0 35px rgba(0,212,255,0.65), 0 0 60px rgba(0,212,255,0.15); }
+}
+
+.logo-text h1 {
+  font-size: 1.15rem; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #00d4ff, #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.logo-text p { font-size: 0.62rem; color: var(--text-muted); font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 1px; }
+
+.header-right { display:flex; align-items:center; gap:10px; }
+
+.online-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.25);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.65rem; font-weight: 700; color: #4ade80;
+  letter-spacing: 0.5px;
+}
+.online-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+/* ——— DISCLAIMER BAR ——— */
+.disclaimer {
+  position: relative; z-index: 5;
+  background: rgba(245,158,11,0.07);
+  border-bottom: 1px solid rgba(245,158,11,0.18);
+  padding: 9px 20px;
+  font-size: 0.7rem; color: #fbbf24; font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  line-height: 1.4;
+}
+
+/* ——— MAIN ——— */
+.main {
+  position: relative; z-index: 5;
+  max-width: 900px; margin: 0 auto;
+  padding: 20px 16px 24px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+/* ——— CARDS ——— */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+.card-inner { padding: 20px; }
+
+.card-accent-top::before {
+  content: '';
+  position: absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, var(--accent) 0%, #6366f1 60%, transparent 100%);
+}
+
+.section-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.68rem; font-weight: 800; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 2.5px;
+  margin-bottom: 18px;
+}
+.section-label .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 8px var(--accent);
+  flex-shrink: 0;
+}
+
+/* ——— INPUT SYSTEM ——— */
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+@media (min-width: 600px) { .input-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.input-group { display:flex; flex-direction:column; gap:6px; }
+
+.input-group label {
+  font-size: 0.65rem; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px;
+}
+
+.input-wrap { position:relative; display:flex; align-items:center; }
+
+.input-wrap input,
+.input-wrap select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem; font-weight: 500;
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  -webkit-appearance: none;
+}
+.input-wrap input:focus,
+.input-wrap select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.12);
+}
+.input-wrap input::placeholder { color: var(--text-muted); font-size: 0.85rem; }
+.input-wrap input[type="number"] { padding-right: 46px; font-family: 'JetBrains Mono', monospace; }
+.input-wrap .unit {
+  position: absolute; right: 12px;
+  font-size: 0.7rem; font-weight: 600; color: var(--accent);
+  font-family: 'JetBrains Mono', monospace; pointer-events: none;
+}
+select option { background: var(--surface2); }
+
+.age-display {
+  background: rgba(0,212,255,0.07);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--accent); font-family: 'JetBrains Mono', monospace;
+  min-height: 42px; display:flex; align-items:center;
+  line-height: 1.3;
+}
+
+/* ——— BSA CHIPS ——— */
+.bsa-strip {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 14px 20px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+}
+.bsa-chip {
+  display: flex; flex-direction: column; gap: 2px;
+  flex: 1; min-width: 80px;
+}
+.bsa-chip .lbl { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+.bsa-chip .val { font-size: 1rem; font-weight: 800; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+
+/* ——— CATEGORY GRID ——— */
+.cat-scroll {
+  display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 4px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.cat-scroll::-webkit-scrollbar { display: none; }
+
+.cat-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.25s;
+  white-space: nowrap;
+  font-family: 'Sora', sans-serif;
+  color: var(--text-dim);
+  font-size: 0.75rem; font-weight: 600;
+  flex-shrink: 0;
+}
+.cat-pill:active { transform: scale(0.97); }
+.cat-pill.active {
+  background: rgba(0,212,255,0.12);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 15px rgba(0,212,255,0.2);
+}
+.cat-pill .ci { font-size: 1rem; }
+.cat-pill .cn { font-size: 0.72rem; }
+
+/* ——— SEARCH ——— */
+.search-wrap {
+  position: relative; margin: 14px 20px 0;
+}
+.search-wrap input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px 16px 12px 44px;
+  color: var(--text); font-family: 'Sora', sans-serif;
+  font-size: 0.9rem; outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.12); }
+.search-wrap input::placeholder { color: var(--text-muted); }
+.search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:1.1rem; pointer-events:none; }
+
+/* ——— DRUG GRID ——— */
+.drugs-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 14px 20px 20px;
+}
+@media (min-width: 580px) { .drugs-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.drug-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+  -webkit-user-select: none; user-select: none;
+}
+.drug-card:active { transform: scale(0.98); }
+.drug-card:hover { border-color: rgba(0,212,255,0.4); background: var(--surface3); }
+.drug-card.selected {
+  border-color: var(--accent);
+  background: rgba(0,212,255,0.06);
+  box-shadow: 0 0 20px rgba(0,212,255,0.15);
+}
+.drug-card.selected::before {
+  content: ''; position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+.dc-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px; }
+.dc-name { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.dc-generic { font-size: 0.68rem; color: var(--text-muted); font-style:italic; margin-top:2px; }
+
+.drug-badge {
+  font-size: 0.58rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.8px; padding: 3px 8px; border-radius: 20px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.cat-antibiotico  { background:rgba(74,222,128,0.12);  color:#4ade80;  border:1px solid rgba(74,222,128,0.25); }
+.cat-analgesico   { background:rgba(255,107,107,0.12); color:#ff6b6b;  border:1px solid rgba(255,107,107,0.25); }
+.cat-antipiretico { background:rgba(245,158,11,0.12);  color:#f59e0b;  border:1px solid rgba(245,158,11,0.25); }
+.cat-antiparasitario { background:rgba(168,85,247,0.12); color:#a855f7; border:1px solid rgba(168,85,247,0.25); }
+.cat-broncodilatador { background:rgba(14,165,233,0.12); color:#38bdf8; border:1px solid rgba(14,165,233,0.25); }
+.cat-antihistaminico { background:rgba(236,72,153,0.12); color:#f472b6; border:1px solid rgba(236,72,153,0.25); }
+.cat-antifungico  { background:rgba(251,146,60,0.12);  color:#fb923c;  border:1px solid rgba(251,146,60,0.25); }
+.cat-corticoide   { background:rgba(99,102,241,0.12);  color:#818cf8;  border:1px solid rgba(99,102,241,0.25); }
+.cat-antiemetico  { background:rgba(20,184,166,0.12);  color:#2dd4bf;  border:1px solid rgba(20,184,166,0.25); }
+.cat-antiviral    { background:rgba(239,68,68,0.12);   color:#f87171;  border:1px solid rgba(239,68,68,0.25); }
+
+.dc-tags { display:flex; gap:6px; flex-wrap:wrap; }
+.dc-tag {
+  font-size: 0.65rem; font-family: 'JetBrains Mono', monospace; font-weight:500;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 6px; padding: 3px 8px; color: var(--text-dim);
+}
+
+/* ——— RESULT PANEL ——— */
+.result-panel {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.result-panel.show { display: block; }
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(24px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.result-header {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(99,102,241,0.06));
+  border-bottom: 1px solid var(--border);
+}
+.res-drug { font-size:1.5rem; font-weight:800; letter-spacing:-0.5px;
+  background: linear-gradient(90deg, #00d4ff, #a78bfa);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.res-generic { font-size:0.75rem; color:var(--text-muted); margin-top:3px; }
+.res-patient {
+  display: inline-flex; align-items:center; gap:8px;
+  background: rgba(255,255,255,0.05); border:1px solid var(--border);
+  border-radius:10px; padding:7px 12px; margin-top:12px;
+  font-size:0.78rem; font-family:'JetBrains Mono',monospace; color:var(--text-dim);
+}
+
+.result-body { padding: 20px; display:flex; flex-direction:column; gap:18px; }
+
+/* ——— DOSE RESULT CARDS ——— */
+.dose-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 480px) { .dose-cards { grid-template-columns: repeat(3, 1fr); } }
+
+.dose-card {
+  background: var(--surface2); border:1px solid var(--border);
+  border-radius: 14px; padding: 16px; text-align:center;
+  position: relative; overflow:hidden;
+}
+.dose-card.primary {
+  border-color: var(--accent);
+  background: rgba(0,212,255,0.05);
+  grid-column: span 2;
+}
+@media (min-width: 480px) { .dose-card.primary { grid-column: span 1; } }
+.dose-card.primary::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+.dose-card .dc-lbl {
+  font-size:0.6rem; font-weight:800; text-transform:uppercase;
+  letter-spacing:1.5px; color:var(--text-muted); margin-bottom:8px;
+}
+.dose-card .dc-val {
+  font-size:1.8rem; font-weight:800; font-family:'JetBrains Mono',monospace;
+  line-height:1; color:var(--text);
+}
+.dose-card.primary .dc-val { color:var(--accent); }
+.dose-card .dc-unit { font-size:0.72rem; color:var(--text-muted); margin-top:4px; font-family:'JetBrains Mono',monospace; }
+
+/* ——— CONCENTRACIONES ——— */
+.conc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.conc-card {
+  background: var(--surface2); border:1px solid var(--border);
+  border-radius:12px; padding:12px;
+}
+.conc-form { font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:4px; }
+.conc-conc { font-size:0.78rem; font-family:'JetBrains Mono',monospace; color:var(--text-dim); }
+.conc-vol  { font-size:1.15rem; font-weight:800; font-family:'JetBrains Mono',monospace; color:var(--accent3); margin-top:4px; }
+.conc-vol-lbl { font-size:0.62rem; color:var(--text-muted); }
+
+/* ——— FRECUENCIA / HORARIO ——— */
+.freq-pills { display:flex; gap:8px; flex-wrap:wrap; }
+.freq-pill {
+  background: var(--surface2); border:1px solid var(--border);
+  border-radius:10px; padding:10px 14px; text-align:center; min-width:80px;
+  flex:1;
+}
+.fp-time { font-size:0.62rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.fp-vol  { font-size:0.95rem; font-weight:800; font-family:'JetBrains Mono',monospace; color:var(--accent3); }
+
+/* ——— NOTE BOXES ——— */
+.note { border-radius:10px; padding:12px 14px; font-size:0.8rem; line-height:1.6; display:flex; gap:9px; }
+.note.warn  { background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.2); color:#fbbf24; }
+.note.danger{ background:rgba(255,107,107,0.07); border:1px solid rgba(255,107,107,0.2); color:#ff6b6b; }
+.note.info  { background:rgba(0,212,255,0.07);   border:1px solid rgba(0,212,255,0.2);   color:var(--accent); }
+.note.ok    { background:rgba(74,222,128,0.07);  border:1px solid rgba(74,222,128,0.2);  color:var(--accent3); }
+
+.notes-stack { display:flex; flex-direction:column; gap:8px; }
+
+/* ——— SECTION TITLES inside result ——— */
+.res-sec-title {
+  font-size:0.65rem; font-weight:800; text-transform:uppercase; letter-spacing:2px;
+  color:var(--text-dim); margin-bottom:10px;
+}
+
+/* ——— EMPTY STATE ——— */
+.empty {
+  text-align:center; padding:48px 20px;
+  color:var(--text-muted); grid-column:1/-1;
+}
+.empty .ei { font-size:2.5rem; margin-bottom:10px; opacity:0.4; }
+
+/* ——— PWA INSTALL BANNER ——— */
+#installBanner {
+  display: none; position: fixed; bottom: 0; left:0; right:0;
+  z-index: 200;
+  background: rgba(17,24,39,0.97);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 16px 20px calc(16px + var(--safe-bottom));
+  flex-direction: column; gap: 12px;
+}
+#installBanner.show { display:flex; animation: slideUp2 0.4s ease; }
+@keyframes slideUp2 { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+.ib-top { display:flex; align-items:center; justify-content:space-between; }
+.ib-info { display:flex; align-items:center; gap:12px; }
+.ib-icon { width:44px; height:44px; background:linear-gradient(135deg,#00d4ff,#6366f1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+.ib-text h3 { font-size:0.9rem; font-weight:700; }
+.ib-text p  { font-size:0.72rem; color:var(--text-muted); margin-top:2px; }
+.ib-close { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:6px 10px; color:var(--text-dim); cursor:pointer; font-size:1rem; font-family:'Sora',sans-serif; }
+
+.ib-btn {
+  width:100%; background:linear-gradient(135deg,#00d4ff,#6366f1);
+  border:none; border-radius:12px; padding:13px;
+  color:#fff; font-family:'Sora',sans-serif; font-size:0.9rem; font-weight:700;
+  cursor:pointer; letter-spacing:0.5px;
+  box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+}
+
+/* ——— TOAST ——— */
+.toast {
+  position:fixed; top:80px; left:50%; transform:translateX(-50%) translateY(-10px);
+  z-index:300; background:var(--surface); border:1px solid var(--accent);
+  border-radius:12px; padding:10px 20px;
+  font-size:0.82rem; font-weight:600; color:var(--accent);
+  box-shadow:0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(0,212,255,0.2);
+  opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ——— FOOTER ——— */
+footer {
+  position:relative; z-index:5;
+  border-top:1px solid var(--border);
+  padding:16px 20px; text-align:center;
+  font-size:0.65rem; color:var(--text-muted); line-height:1.9;
+}
+footer strong { color:var(--accent); }
+
+/* ——— SCROLLBAR ——— */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:10px; }
+::-webkit-scrollbar-thumb:hover { background:var(--text-muted); }
+</style>
+</head>
+
+<body>
+<div class="ambient"></div>
+<div class="grid-bg"></div>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">💊</div>
+    <div class="logo-text">
+      <h1>DosísPed MX</h1>
+      <p>Calculadora Pediátrica</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="online-badge" id="onlineBadge">
+      <div class="online-dot"></div>
+      <span id="onlineText">En línea</span>
+    </div>
+  </div>
+</header>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  ⚠️ <strong>Solo para profesionales de la salud.</strong> Verifica con guías clínicas vigentes. Las dosis son orientativas — siempre individualiza.
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+  <!-- PATIENT CARD -->
+  <div class="card card-accent-top">
+    <div class="card-inner">
+      <div class="section-label"><div class="dot"></div> Datos del Paciente</div>
+      <div class="input-grid">
+        <div class="input-group" style="grid-column:1/-1">
+          <label>Nombre (opcional)</label>
+          <div class="input-wrap">
+            <input type="text" id="patientName" placeholder="Ej. García López, Juan" autocomplete="off">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Fecha Nacimiento</label>
+          <div class="input-wrap">
+            <input type="date" id="birthDate" onchange="calcAge()" max="">
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Edad Calculada</label>
+          <div class="age-display" id="ageDisplay">— ingresa fecha de nac.</div>
+        </div>
+        <div class="input-group">
+          <label>Peso</label>
+          <div class="input-wrap">
+            <input type="number" id="weight" min="0.3" max="120" step="0.1" placeholder="0.0" inputmode="decimal" oninput="updateCalc()">
+            <span class="unit">kg</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Talla</label>
+          <div class="input-wrap">
+            <input type="number" id="height" min="30" max="210" step="0.5" placeholder="0.0" inputmode="decimal" oninput="updateCalc()">
+            <span class="unit">cm</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Sexo</label>
+          <div class="input-wrap">
+            <select id="sex" onchange="updateCalc()">
+              <option value="">Seleccionar</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bsa-strip" id="bsaStrip" style="display:none">
+      <div class="bsa-chip"><div class="lbl">Peso</div><div class="val" id="bsaWeight">—</div></div>
+      <div class="bsa-chip"><div class="lbl">IMC</div><div class="val" id="bsaIMC">—</div></div>
+      <div class="bsa-chip"><div class="lbl">BSA Mosteller</div><div class="val" id="bsaBSA">—</div></div>
+      <div class="bsa-chip"><div class="lbl">Grupo Etario</div><div class="val" id="ageGroup">—</div></div>
+    </div>
+  </div>
+
+  <!-- DRUG SELECTOR -->
+  <div class="card">
+    <div class="card-inner" style="padding-bottom:0">
+      <div class="section-label"><div class="dot"></div> Medicamento</div>
+    </div>
+
+    <!-- Categories -->
+    <div class="cat-scroll" id="catScroll"></div>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar medicamento, principio activo..." oninput="filterDrugs()" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+
+    <!-- Drugs -->
+    <div class="drugs-grid" id="drugsGrid"></div>
+  </div>
+
+  <!-- RESULT PANEL -->
+  <div class="result-panel" id="resultPanel">
+    <div class="result-header">
+      <div class="res-drug" id="resDrug">—</div>
+      <div class="res-generic" id="resGeneric">—</div>
+      <div class="res-patient" id="resPatient">
+        <span>👤</span><span id="resPatientText">—</span>
+      </div>
+    </div>
+    <div class="result-body" id="resultBody"></div>
+  </div>
+
+</div>
+
+<footer>
+  <strong>DosísPed MX</strong> v1.0 · Calculadora de Dosis Pediátrica para México<br>
+  Guías: CENETEC · NOM-007-SSA2 · Taketomo Pediatric & Neonatal Dosage Handbook · SMP México<br>
+  ⚕️ Esta herramienta NO sustituye el criterio clínico del médico tratante.
+</footer>
+
+<!-- PWA Install Banner -->
+<div id="installBanner">
+  <div class="ib-top">
+    <div class="ib-info">
+      <div class="ib-icon">💊</div>
+      <div class="ib-text">
+        <h3>Instalar DosísPed MX</h3>
+        <p>Úsala sin internet, como app nativa</p>
+      </div>
+    </div>
+    <button class="ib-close" onclick="closeBanner()">✕</button>
+  </div>
+  <button class="ib-btn" id="installBtn" onclick="installPWA()">
+    📲 Instalar en este dispositivo
+  </button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==========================================
+//  DosísPed MX — App Logic v1.0
+// ==========================================
+
+// ——— DATABASE ———
+const DRUGS = [
+  { id:1, name:'Paracetamol', generic:'Acetaminofén', cat:'antipiretico', cls:'Analgésico/Antipirético',
+    dose:{min:10,max:15,unit:'mg/kg/dosis',freq:'c/6h',maxDay:75,maxDayAbs:4000},
+    routes:['Oral','Rectal'],
+    concs:[{f:'Gotas 100mg/mL',c:100,u:'mg/mL'},{f:'Jarabe 160mg/5mL',c:32,u:'mg/mL'},{f:'Jarabe 250mg/5mL',c:50,u:'mg/mL'},{f:'Supositorio 125mg',c:125,u:'mg/supo'}],
+    notes:['10-15 mg/kg c/6h. Máx 5 dosis en 24h.','Prematuros: 10-12 mg/kg c/8-12h.','No exceder 75 mg/kg/día ni 4g/día.'],
+    warns:['Evitar en hepatopatía severa.','Verificar otros medicamentos con paracetamol (sobredosis acumulada).'],
+    minAge:0 },
+
+  { id:2, name:'Ibuprofeno', generic:'Ibuprofeno', cat:'analgesico', cls:'AINE',
+    dose:{min:5,max:10,unit:'mg/kg/dosis',freq:'c/6-8h',maxDay:40,maxDayAbs:2400},
+    routes:['Oral'],
+    concs:[{f:'Suspensión 100mg/5mL',c:20,u:'mg/mL'},{f:'Suspensión 200mg/5mL',c:40,u:'mg/mL'}],
+    notes:['Antipirético: 5-10 mg/kg c/6-8h.','Antiinflamatorio: 10 mg/kg c/6-8h.','Tomar con alimentos.'],
+    warns:['CONTRAINDICADO < 6 meses.','Evitar en deshidratación, nefropatía, varicela.','NO usar en dengue — riesgo de hemorragia.'],
+    minAge:6, ageNote:'No usar en < 6 meses.' },
+
+  { id:3, name:'Metamizol', generic:'Dipirona / Metamizol sódico', cat:'analgesico', cls:'Analgésico pirazolónico',
+    dose:{min:10,max:15,unit:'mg/kg/dosis',freq:'c/6-8h',maxDay:60,maxDayAbs:3000},
+    routes:['Oral','IV','IM'],
+    concs:[{f:'Gotas 500mg/mL',c:500,u:'mg/mL'},{f:'Ampolleta 1g/2mL',c:500,u:'mg/mL'}],
+    notes:['Muy utilizado en México para fiebre alta y dolor.','IV: 10 mg/kg lento en 15 min mínimo.'],
+    warns:['Riesgo (raro) de agranulocitosis.','No usar en < 3 meses.','IV rápido puede causar hipotensión severa.'],
+    minAge:3, ageNote:'No usar en < 3 meses.' },
+
+  { id:4, name:'Amoxicilina', generic:'Amoxicilina', cat:'antibiotico', cls:'Penicilina aminopenicilina',
+    dose:{min:25,max:45,unit:'mg/kg/día',freq:'c/8h',maxDay:90,maxDayAbs:3000},
+    routes:['Oral'],
+    concs:[{f:'Suspensión 125mg/5mL',c:25,u:'mg/mL'},{f:'Suspensión 250mg/5mL',c:50,u:'mg/mL'},{f:'Suspensión 400mg/5mL',c:80,u:'mg/mL'}],
+    notes:['OMA (alta resistencia en MX): 80-90 mg/kg/día c/12h.','Faringitis estreptocócica: 50 mg/kg/día c/12h × 10 días.','Infecciones leves-moderadas: 25-45 mg/kg/día c/8h.'],
+    warns:['Verificar alergia a penicilinas.','Ajuste en IRT severa.'],
+    minAge:0, isPerDay:true },
+
+  { id:5, name:'Amoxicilina-Clavulanato', generic:'Amoxicilina + Ácido clavulánico', cat:'antibiotico', cls:'Penicilina + Inhibidor β-lact.',
+    dose:{min:25,max:45,unit:'mg/kg/día',freq:'c/8-12h',maxDay:90,maxDayAbs:3000},
+    routes:['Oral'],
+    concs:[{f:'Susp 250/62.5 mg/5mL',c:50,u:'mg/mL amox'},{f:'Susp 400/57 mg/5mL',c:80,u:'mg/mL amox'}],
+    notes:['Dosis expresada en amoxicilina.','OMA alta resistencia: 80-90 mg/kg/día de amoxicilina c/12h.','Tomar con alimentos para reducir efectos GI.'],
+    warns:['Mayor diarrea que amoxicilina sola.','No usar Susp 250 en < 12 semanas.'],
+    minAge:0, isPerDay:true },
+
+  { id:6, name:'Azitromicina', generic:'Azitromicina dihidrato', cat:'antibiotico', cls:'Macrólido',
+    dose:{min:10,max:12,unit:'mg/kg/día',freq:'c/24h × 3-5 días',maxDay:12,maxDayAbs:500},
+    routes:['Oral'],
+    concs:[{f:'Suspensión 200mg/5mL',c:40,u:'mg/mL'}],
+    notes:['Faringitis/alergia PNC: 12 mg/kg/día × 5 días.','Neumonía: 10 mg/kg día 1 → 5 mg/kg días 2-5.','Tomar en ayunas (o con alimentos, evitar antiácidos).'],
+    warns:['Riesgo de prolongación QT.','Interacciones con digoxina y warfarina.'],
+    minAge:6, isPerDay:true },
+
+  { id:7, name:'Cefalexina', generic:'Cefalexina monohidrato', cat:'antibiotico', cls:'Cefalosporina 1ª gen.',
+    dose:{min:25,max:50,unit:'mg/kg/día',freq:'c/6-12h',maxDay:100,maxDayAbs:4000},
+    routes:['Oral'],
+    concs:[{f:'Suspensión 250mg/5mL',c:50,u:'mg/mL'}],
+    notes:['Piel/tejidos blandos: 25-50 mg/kg/día c/6-12h.','Infecciones graves: 50-100 mg/kg/día c/6h.'],
+    warns:['Reacción cruzada con alergia a PNC (~1-3%).'],
+    minAge:0, isPerDay:true },
+
+  { id:8, name:'Ceftriaxona', generic:'Ceftriaxona sódica', cat:'antibiotico', cls:'Cefalosporina 3ª gen.',
+    dose:{min:50,max:100,unit:'mg/kg/día',freq:'c/12-24h',maxDay:100,maxDayAbs:4000},
+    routes:['IV','IM'],
+    concs:[{f:'Vial 1g (1g/10mL)',c:100,u:'mg/mL'}],
+    notes:['Meningitis: 100 mg/kg/día c/12h.','Neumonía hospitalizada: 50 mg/kg/día c/24h.','Infecciones graves: 50-100 mg/kg/día.'],
+    warns:['CONTRAINDICADO en neonatos < 41 sem EG e hiperbilirrubinemia.','No mezclar con calcio IV.'],
+    minAge:0, isPerDay:true },
+
+  { id:9, name:'Metronidazol', generic:'Metronidazol', cat:'antibiotico', cls:'Nitroimidazol',
+    dose:{min:7.5,max:15,unit:'mg/kg/dosis',freq:'c/8h',maxDay:45,maxDayAbs:2000},
+    routes:['Oral','IV'],
+    concs:[{f:'Suspensión 125mg/5mL',c:25,u:'mg/mL'},{f:'Solución IV 5mg/mL',c:5,u:'mg/mL'}],
+    notes:['Giardia/amebiasis: 15 mg/kg/día c/8h × 5-10 días.','Infecciones anaerobias: 7.5-15 mg/kg c/8h.'],
+    warns:['Evitar alcohol durante el tratamiento.','Sabor metálico frecuente.'],
+    minAge:0 },
+
+  { id:10, name:'TMP-SMX (Cotrimoxazol)', generic:'Trimetoprim + Sulfametoxazol', cat:'antibiotico', cls:'Sulfonamida',
+    dose:{min:6,max:12,unit:'mg/kg/día TMP',freq:'c/12h',maxDay:20,maxDayAbs:320},
+    routes:['Oral'],
+    concs:[{f:'Susp 40/200 mg/5mL',c:8,u:'mg TMP/mL'}],
+    notes:['Dosis en componente TMP.','ITU no complicada: 6-12 mg TMP/kg/día c/12h × 7-10 días.','Profilaxis ITU: 2 mg TMP/kg c/24h nocturno.'],
+    warns:['CONTRAINDICADO < 2 meses.','Evitar en déficit G6PD.','Fotoprotección recomendada.'],
+    minAge:2, isPerDay:true },
+
+  { id:11, name:'Albendazol', generic:'Albendazol', cat:'antiparasitario', cls:'Antihelmíntico benzimidazol',
+    dose:{min:7.5,max:7.5,unit:'mg/kg/dosis',freq:'c/12h × 3 días',maxDayAbs:400},
+    routes:['Oral'],
+    concs:[{f:'Susp 100mg/5mL',c:20,u:'mg/mL'},{f:'Tab 200mg',c:200,u:'mg/tab'}],
+    notes:['Áscaris/oxiuros/giardia: 400 mg dosis única (< 2 años: 200 mg).','Toxocariasis: 7.5 mg/kg c/12h × 5 días.','Tomar con alimentos grasos para mayor absorción.'],
+    warns:['CONTRAINDICADO en embarazo.','< 2 años: mitad de dosis con supervisión médica.'],
+    minAge:12, ageNote:'< 2 años: usar mitad de dosis bajo supervisión.' },
+
+  { id:12, name:'Salbutamol Inhalado', generic:'Albuterol / Salbutamol sulfato', cat:'broncodilatador', cls:'Agonista β₂ de acción corta',
+    dose:{min:0.1,max:0.15,unit:'mg/kg/dosis',freq:'c/20min×3 (crisis) / c/4-6h',maxDayAbs:10},
+    routes:['MDI + Cámara','Nebulización'],
+    concs:[{f:'MDI 100mcg/puff',c:0.1,u:'mg/puff'},{f:'Nebulización 0.5% (5mg/mL)',c:5,u:'mg/mL'}],
+    notes:['MDI + cámara: 2-4 puffs (< 6 años), 4-8 puffs (> 6 años) c/20 min × 3 en crisis.','Nebulización: 0.15 mg/kg (mín 2.5 mg, máx 5 mg) en 3 mL SSN c/20 min × 3.','MDI + cámara tiene MISMA eficacia que nebulización en crisis leve-moderada.'],
+    warns:['Taquicardia, temblor e hipopotasemia con dosis altas.','Verificar técnica inhalatoria y cámara espaciadora apropiada para la edad.'],
+    minAge:0 },
+
+  { id:13, name:'Ambroxol', generic:'Ambroxol clorhidrato', cat:'broncodilatador', cls:'Mucolítico secretolítico',
+    dose:{min:1.2,max:1.6,unit:'mg/kg/día',freq:'c/8-12h',maxDayAbs:60},
+    routes:['Oral'],
+    concs:[{f:'Jarabe 15mg/5mL',c:3,u:'mg/mL'},{f:'Jarabe 30mg/5mL',c:6,u:'mg/mL'}],
+    notes:['< 2 años: 7.5 mg c/12h.','2-5 años: 7.5 mg c/8h.','6-12 años: 15 mg c/8h.','> 12 años: 30 mg c/8h.'],
+    warns:['Tomar con líquidos abundantes.'],
+    minAge:0, isPerDay:true },
+
+  { id:14, name:'Loratadina', generic:'Loratadina', cat:'antihistaminico', cls:'Antihistamínico no sedante',
+    dose:{min:0.2,max:0.2,unit:'mg/kg/día',freq:'c/24h',maxDayAbs:10},
+    routes:['Oral'],
+    concs:[{f:'Jarabe 5mg/5mL',c:1,u:'mg/mL'},{f:'Tableta 10mg',c:10,u:'mg/tab'}],
+    notes:['< 30 kg: 5 mg/día c/24h.','≥ 30 kg: 10 mg/día c/24h.','Rhinitis alérgica, urticaria.'],
+    warns:['Somnolencia leve ocasional.'],
+    minAge:24, ageNote:'Generalmente indicado > 2 años.', isPerDay:true },
+
+  { id:15, name:'Cetirizina', generic:'Cetirizina dihidrocloruro', cat:'antihistaminico', cls:'Antihistamínico 2ª generación',
+    dose:{min:0.25,max:0.25,unit:'mg/kg/día',freq:'c/24h',maxDayAbs:10},
+    routes:['Oral'],
+    concs:[{f:'Jarabe 5mg/5mL',c:1,u:'mg/mL'}],
+    notes:['6-12 meses: 2.5 mg c/24h.','1-2 años: 2.5 mg c/12-24h.','2-6 años: 2.5-5 mg c/24h.','> 6 años: 5-10 mg c/24h.'],
+    warns:['Puede causar somnolencia (más que loratadina).','Ajuste en insuficiencia renal.'],
+    minAge:6, isPerDay:true },
+
+  { id:16, name:'Difenhidramina', generic:'Difenhidramina HCl', cat:'antihistaminico', cls:'Antihistamínico 1ª gen. sedante',
+    dose:{min:1,max:1.25,unit:'mg/kg/dosis',freq:'c/6h',maxDay:5,maxDayAbs:300},
+    routes:['Oral','IV','IM'],
+    concs:[{f:'Jarabe 12.5mg/5mL',c:2.5,u:'mg/mL'},{f:'Ampolleta 50mg/mL',c:50,u:'mg/mL'}],
+    notes:['Reacciones alérgicas, urticaria, prurito, distonia por metoclopramida.','Dosis IV (anafilaxia): 1-1.25 mg/kg lento.'],
+    warns:['Sedación significativa.','CONTRAINDICADO en neonatos/prematuros.','Efectos paradójicos en lactantes.'],
+    minAge:24 },
+
+  { id:17, name:'Fluconazol', generic:'Fluconazol', cat:'antifungico', cls:'Triazol antifúngico',
+    dose:{min:3,max:12,unit:'mg/kg/dosis',freq:'c/24h',maxDayAbs:800},
+    routes:['Oral','IV'],
+    concs:[{f:'Suspensión 50mg/5mL',c:10,u:'mg/mL'},{f:'Solución IV 2mg/mL',c:2,u:'mg/mL'}],
+    notes:['Candidiasis orofaríngea: 3-6 mg/kg/día × 7-14 días.','Candidiasis esofágica: 6-12 mg/kg/día × 14-21 días.','Profilaxis en inmunosuprimidos: 3-6 mg/kg c/24h.'],
+    warns:['Hepatotoxicidad — monitorear enzimas hepáticas.','Múltiples interacciones farmacológicas.'],
+    minAge:0 },
+
+  { id:18, name:'Nistatina', generic:'Nistatina', cat:'antifungico', cls:'Polieno antifúngico tópico',
+    dose:{min:100000,max:400000,unit:'UI/dosis (fija)',freq:'c/6h',fixed:true},
+    routes:['Oral (solución tópica)'],
+    concs:[{f:'Suspensión 100,000 UI/mL',c:100000,u:'UI/mL',forceVol:true}],
+    notes:['RN/lactantes: 100,000 UI c/6h.','Niños: 200,000-400,000 UI c/6h.','Aplicar directo en mucosa oral — mantener en boca antes de deglutir.','Duración: 7-14 días (mín 48h tras resolución).'],
+    warns:['Solo uso oral/tópico — no se absorbe sistémicamente.','Agitar bien antes de usar.'],
+    minAge:0 },
+
+  { id:19, name:'Prednisolona / Prednisona', generic:'Prednisolona / Prednisona', cat:'corticoide', cls:'Glucocorticoide oral',
+    dose:{min:1,max:2,unit:'mg/kg/día',freq:'c/12-24h',maxDayAbs:60},
+    routes:['Oral'],
+    concs:[{f:'Solución 15mg/5mL',c:3,u:'mg/mL'},{f:'Tableta 5mg',c:5,u:'mg/tab'}],
+    notes:['Crisis asmática: 1-2 mg/kg/día c/12h × 3-5 días.','Croup: 1-2 mg/kg dosis única (máx 60 mg).','Síndrome nefrótico: 2 mg/kg/día (máx 60 mg) × 4-6 sem.'],
+    warns:['Uso prolongado: supresión adrenal, osteoporosis, hiperglucemia.','Reducción gradual si uso > 7-10 días.'],
+    minAge:0, isPerDay:true },
+
+  { id:20, name:'Dexametasona', generic:'Dexametasona fosfato', cat:'corticoide', cls:'Glucocorticoide potente (6-7× prednisolona)',
+    dose:{min:0.15,max:0.6,unit:'mg/kg/dosis',freq:'c/6-24h según indicación',maxDayAbs:16},
+    routes:['Oral','IV','IM'],
+    concs:[{f:'Ampolleta 4mg/mL',c:4,u:'mg/mL'},{f:'Ampolleta 8mg/2mL',c:4,u:'mg/mL'}],
+    notes:['Croup (laringotraqueítis): 0.15-0.6 mg/kg dosis única (máx 10 mg).','Edema cerebral: 0.5-1 mg/kg/día c/6h IV.','Meningitis bacteriana: 0.15 mg/kg c/6h × 4 días (iniciar con o antes del ATB).','Antieméticos: 0.15-0.3 mg/kg por dosis.'],
+    warns:['Potencia 6-7× mayor que prednisolona.','Hiperglucemia, inmunosupresión.'],
+    minAge:0 },
+
+  { id:21, name:'Ondansetrón', generic:'Ondansetrón clorhidrato', cat:'antiemetico', cls:'Antagonista 5-HT₃',
+    dose:{min:0.1,max:0.15,unit:'mg/kg/dosis',freq:'c/8h PRN',maxDay:0.45,maxDayAbs:24},
+    routes:['Oral','IV','IM'],
+    concs:[{f:'Solución 4mg/5mL',c:0.8,u:'mg/mL'},{f:'Ampolleta 4mg/2mL',c:2,u:'mg/mL'}],
+    notes:['Gastroenteritis aguda: 0.15 mg/kg VO dosis única (máx 4 mg).','Esquema oral: < 15 kg → 2 mg | 15-30 kg → 4 mg | > 30 kg → 8 mg.','Náusea/vómito post-QT: 0.15 mg/kg IV c/4h × 3 dosis.'],
+    warns:['Riesgo de prolongación QT (especialmente IV).','CONTRAINDICADO < 6 meses para uso oral.'],
+    minAge:6 },
+
+  { id:22, name:'Metoclopramida', generic:'Metoclopramida HCl', cat:'antiemetico', cls:'Procinético / Antagonista D₂',
+    dose:{min:0.1,max:0.15,unit:'mg/kg/dosis',freq:'c/6-8h',maxDay:0.5,maxDayAbs:10},
+    routes:['Oral','IV','IM'],
+    concs:[{f:'Solución 5mg/5mL',c:1,u:'mg/mL'},{f:'Ampolleta 10mg/2mL',c:5,u:'mg/mL'}],
+    notes:['ERGE pediátrico: 0.1-0.15 mg/kg c/8h.','Gastroenteritis: 0.15 mg/kg IV lento.'],
+    warns:['Riesgo de DISTONIA (reacción extrapiramidal) en niños — tener difenhidramina como antídoto.','Evitar en epilepsia y obstrucción GI.'],
+    minAge:0 },
+
+  { id:23, name:'Oseltamivir', generic:'Oseltamivir fosfato', cat:'antiviral', cls:'Inhibidor neuraminidasa influenza',
+    dose:{min:3.5,max:4.5,unit:'mg/kg/dosis',freq:'c/12h × 5 días',maxDayAbs:150},
+    routes:['Oral'],
+    concs:[{f:'Suspensión 12mg/mL',c:12,u:'mg/mL'}],
+    notes:['< 15 kg → 30 mg c/12h.','15-23 kg → 45 mg c/12h.','23-40 kg → 60 mg c/12h.','>  40 kg → 75 mg c/12h.','Iniciar dentro de 48h del inicio de síntomas para mejor eficacia.'],
+    warns:['Ajuste en insuficiencia renal.','Eficacia disminuye si se inicia después de 48h.'],
+    minAge:0, specialCalc:'oseltamivir' },
+
+  { id:24, name:'Aciclovir', generic:'Aciclovir', cat:'antiviral', cls:'Antiviral nucleósido análogo',
+    dose:{min:10,max:20,unit:'mg/kg/dosis',freq:'c/6-8h',maxDay:60,maxDayAbs:3200},
+    routes:['Oral','IV'],
+    concs:[{f:'Suspensión 200mg/5mL',c:40,u:'mg/mL'},{f:'Vial IV 250mg (25mg/mL)',c:25,u:'mg/mL'}],
+    notes:['Varicela inmunocompetente: 20 mg/kg (máx 800 mg) c/6h × 5 días VO.','Herpes neonatal / encefalitis herpética: 20 mg/kg c/8h IV × 14-21 días.','Herpes zóster: 20 mg/kg c/6h × 7 días.'],
+    warns:['Hidratación adecuada — evitar nefrotoxicidad.','Ajuste en insuficiencia renal.'],
+    minAge:0 },
+];
+
+const CATEGORIES = [
+  {id:'all',name:'Todos',icon:'💊'},
+  {id:'antipiretico',name:'Antipiréticos',icon:'🌡️'},
+  {id:'analgesico',name:'Analgésicos',icon:'🩹'},
+  {id:'antibiotico',name:'Antibióticos',icon:'🦠'},
+  {id:'antiparasitario',name:'Antiparasitarios',icon:'🔬'},
+  {id:'broncodilatador',name:'Respiratorio',icon:'💨'},
+  {id:'antihistaminico',name:'Antihist.',icon:'🌸'},
+  {id:'antifungico',name:'Antifúngicos',icon:'🍄'},
+  {id:'corticoide',name:'Corticoides',icon:'⚡'},
+  {id:'antiemetico',name:'Antieméticos',icon:'🤢'},
+  {id:'antiviral',name:'Antivirales',icon:'🧬'},
+];
+
+const FREQ_MAP = {'c/4h':6,'c/6h':4,'c/8h':3,'c/12h':2,'c/24h':1,'c/48h':0.5};
+
+// ——— State ———
+let S = {
+  weight:null, height:null, ageMonths:null,
+  sex:'', category:'all', search:'', selectedDrug:null
+};
+let deferredPrompt = null;
+
+// =================== INIT ===================
+document.addEventListener('DOMContentLoaded', () => {
+  // Set max date for birthdate
+  document.getElementById('birthDate').max = new Date().toISOString().split('T')[0];
+  renderCategories();
+  filterDrugs();
+  updateOnlineStatus();
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+});
+
+// =================== PWA ===================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('[PWA] SW registered:', r.scope))
+      .catch(e => console.log('[PWA] SW failed:', e));
+  });
+}
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show banner after 3 seconds
+  setTimeout(() => {
+    const b = document.getElementById('installBanner');
+    if (b) b.classList.add('show');
+  }, 3000);
+});
+
+window.addEventListener('appinstalled', () => {
+  closeBanner();
+  showToast('✅ DosísPed MX instalada correctamente');
+});
+
+function installPWA() {
+  if (!deferredPrompt) {
+    showToast('ℹ️ Usa el menú del navegador para instalar');
+    return;
+  }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(r => {
+    if (r.outcome === 'accepted') showToast('🎉 Instalando DosísPed MX...');
+    deferredPrompt = null;
+  });
+}
+
+function closeBanner() {
+  document.getElementById('installBanner').classList.remove('show');
+}
+
+function updateOnlineStatus() {
+  const isOnline = navigator.onLine;
+  const badge = document.getElementById('onlineBadge');
+  const text  = document.getElementById('onlineText');
+  if (isOnline) {
+    badge.style.background = 'rgba(74,222,128,0.1)';
+    badge.style.borderColor = 'rgba(74,222,128,0.25)';
+    badge.style.color = '#4ade80';
+    badge.querySelector('.online-dot').style.background = '#4ade80';
+    badge.querySelector('.online-dot').style.boxShadow = '0 0 6px #4ade80';
+    text.textContent = 'En línea';
+  } else {
+    badge.style.background = 'rgba(245,158,11,0.1)';
+    badge.style.borderColor = 'rgba(245,158,11,0.25)';
+    badge.style.color = '#f59e0b';
+    badge.querySelector('.online-dot').style.background = '#f59e0b';
+    badge.querySelector('.online-dot').style.boxShadow = '0 0 6px #f59e0b';
+    text.textContent = 'Sin conexión';
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// =================== CATEGORIES ===================
+function renderCategories() {
+  const el = document.getElementById('catScroll');
+  el.innerHTML = CATEGORIES.map(c => {
+    const cnt = c.id === 'all' ? DRUGS.length : DRUGS.filter(d => d.cat === c.id).length;
+    return `<button class="cat-pill ${c.id === 'all' ? 'active' : ''}" id="cpill-${c.id}" onclick="selectCat('${c.id}')">
+      <span class="ci">${c.icon}</span>
+      <span class="cn">${c.name} (${cnt})</span>
+    </button>`;
+  }).join('');
+}
+
+function selectCat(id) {
+  S.category = id;
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  const p = document.getElementById('cpill-' + id);
+  if (p) { p.classList.add('active'); p.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); }
+  filterDrugs();
+}
+
+// =================== DRUG FILTER ===================
+function filterDrugs() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  S.search = q;
+  let list = DRUGS;
+  if (S.category !== 'all') list = list.filter(d => d.cat === S.category);
+  if (q) list = list.filter(d =>
+    d.name.toLowerCase().includes(q) ||
+    d.generic.toLowerCase().includes(q) ||
+    d.cls.toLowerCase().includes(q)
+  );
+  const grid = document.getElementById('drugsGrid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty"><div class="ei">🔍</div><div>Sin resultados para "${q}"</div></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(d => `
+    <div class="drug-card ${S.selectedDrug?.id === d.id ? 'selected' : ''}" onclick="selectDrug(${d.id})">
+      <div class="dc-top">
+        <div>
+          <div class="dc-name">${d.name}</div>
+          <div class="dc-generic">${d.generic}</div>
+        </div>
+        <span class="drug-badge cat-${d.cat}">${d.cls.split(' ')[0]}</span>
+      </div>
+      <div class="dc-tags">
+        ${!d.dose.fixed ? `<span class="dc-tag">${d.dose.min}${d.dose.min!==d.dose.max?'–'+d.dose.max:''} ${d.dose.unit}</span>` : '<span class="dc-tag">Dosis fija</span>'}
+        <span class="dc-tag">${d.dose.freq.split('×')[0].trim()}</span>
+        <span class="dc-tag">${d.routes[0]}</span>
+      </div>
+    </div>`).join('');
+}
+
+function selectDrug(id) {
+  S.selectedDrug = DRUGS.find(d => d.id === id);
+  filterDrugs();
+  calcAndShow();
+  setTimeout(() => {
+    document.getElementById('resultPanel').scrollIntoView({behavior:'smooth', block:'start'});
+  }, 150);
+}
+
+// =================== PATIENT ===================
+function calcAge() {
+  const bd = document.getElementById('birthDate').value;
+  if (!bd) return;
+  const birth = new Date(bd);
+  const now   = new Date();
+  if (birth > now) return;
+  const days   = Math.floor((now - birth) / 86400000);
+  const months = Math.floor(days / 30.44);
+  const years  = Math.floor(months / 12);
+  const remM   = months % 12;
+  S.ageMonths  = months;
+  let txt;
+  if (years > 0) txt = `${years} año${years>1?'s':''} ${remM>0 ? remM+' mes'+(remM>1?'es':'') : ''}`;
+  else if (months > 0) txt = `${months} mes${months>1?'es':''}`;
+  else txt = `${days} días`;
+  document.getElementById('ageDisplay').textContent = `${txt.trim()} (${days} días)`;
+  updateCalc();
+}
+
+function updateCalc() {
+  const w = parseFloat(document.getElementById('weight').value);
+  const h = parseFloat(document.getElementById('height').value);
+  S.weight = isNaN(w) ? null : w;
+  S.height = isNaN(h) ? null : h;
+  S.sex    = document.getElementById('sex').value;
+
+  const strip = document.getElementById('bsaStrip');
+  if (S.weight) {
+    strip.style.display = 'flex';
+    document.getElementById('bsaWeight').textContent = S.weight.toFixed(1) + ' kg';
+    if (S.height) {
+      const bsa = Math.sqrt((S.height * S.weight) / 3600);
+      const imc = S.weight / Math.pow(S.height/100, 2);
+      document.getElementById('bsaBSA').textContent = bsa.toFixed(2) + ' m²';
+      document.getElementById('bsaIMC').textContent  = imc.toFixed(1) + ' kg/m²';
+    } else {
+      document.getElementById('bsaBSA').textContent = '—';
+      document.getElementById('bsaIMC').textContent  = '—';
+    }
+    document.getElementById('ageGroup').textContent = getAgeGroup();
+  } else {
+    strip.style.display = 'none';
+  }
+  if (S.selectedDrug) calcAndShow();
+}
+
+function getAgeGroup() {
+  if (S.ageMonths === null) return '—';
+  if (S.ageMonths < 1)  return 'Neonato';
+  if (S.ageMonths < 3)  return 'Neonato tardío';
+  if (S.ageMonths < 12) return 'Lactante';
+  if (S.ageMonths < 24) return 'Lactante mayor';
+  if (S.ageMonths < 72) return 'Preescolar';
+  if (S.ageMonths < 144)return 'Escolar';
+  return 'Adolescente';
+}
+
+function getFreqDiv(freqStr) {
+  for (const [k,v] of Object.entries(FREQ_MAP)) {
+    if (freqStr.includes(k)) return v;
+  }
+  return 0;
+}
+
+// =================== CALCULATE ===================
+function calcAndShow() {
+  const panel = document.getElementById('resultPanel');
+  const d = S.selectedDrug;
+  if (!d) { panel.classList.remove('show'); return; }
+  panel.classList.add('show');
+  document.getElementById('resDrug').textContent    = d.name;
+  document.getElementById('resGeneric').textContent = d.generic + ' · ' + d.cls;
+  const name  = document.getElementById('patientName').value;
+  const wStr  = S.weight ? S.weight.toFixed(1) + ' kg' : 'Sin peso';
+  const aStr  = getAgeGroup();
+  document.getElementById('resPatientText').textContent =
+    (name ? name + ' · ' : '') + wStr + ' · ' + aStr;
+  buildResult();
+}
+
+function buildResult() {
+  const d  = S.selectedDrug;
+  const w  = S.weight;
+  const el = document.getElementById('resultBody');
+  let html = '';
+
+  // Age warning
+  if (d.minAge > 0 && S.ageMonths !== null && S.ageMonths < d.minAge) {
+    html += `<div class="note danger">⛔ ${d.ageNote || 'Contraindicado en esta edad. Consultar especialista.'}</div>`;
+  }
+
+  if (!w) {
+    html += `<div class="note info">⚖️ Ingresa el <strong>peso</strong> del paciente para calcular la dosis y volúmenes.</div>`;
+    el.innerHTML = html;
+    return;
+  }
+
+  // ——— DOSE CARDS ———
+  if (d.specialCalc === 'oseltamivir') {
+    html += buildOseltamivirDose(d, w);
+  } else if (d.dose.fixed) {
+    html += buildFixedDose(d, w);
+  } else {
+    html += buildWeightDose(d, w);
+  }
+
+  // ——— CONCENTRACIONES ———
+  if (d.concs?.length) {
+    html += `<div><div class="res-sec-title">⚗️ Volúmenes por Presentación</div><div class="conc-grid">`;
+    d.concs.forEach(c => {
+      const vol = calcVol(d, c, w);
+      html += `<div class="conc-card">
+        <div class="conc-form">${c.f}</div>
+        <div class="conc-conc">${c.c} ${c.u}</div>
+        ${vol ? `<div class="conc-vol">${vol}</div><div class="conc-vol-lbl">por dosis</div>` : ''}
+      </div>`;
+    });
+    html += '</div></div>';
+  }
+
+  // ——— HORARIO ———
+  const schedHtml = buildSchedule(d, w);
+  if (schedHtml) html += schedHtml;
+
+  // ——— NOTAS ———
+  if (d.notes?.length) {
+    html += `<div><div class="res-sec-title">📋 Notas Clínicas</div><div class="notes-stack">`;
+    d.notes.forEach(n => { html += `<div class="note info">💡 ${n}</div>`; });
+    html += '</div></div>';
+  }
+  if (d.warns?.length) {
+    html += `<div><div class="res-sec-title">⚠️ Advertencias</div><div class="notes-stack">`;
+    d.warns.forEach(w2 => { html += `<div class="note danger">⚠️ ${w2}</div>`; });
+    html += '</div></div>';
+  }
+
+  html += `<div class="note ok">🏥 Vías: <strong>${d.routes.join(' · ')}</strong></div>`;
+
+  el.innerHTML = html;
+}
+
+function getDoseMgPerDosis(d, w) {
+  if (d.dose.fixed) return null;
+  const dMin = d.dose.min * w;
+  const dMax = d.dose.max * w;
+  let cappedMin = d.dose.maxDayAbs && dMin > d.dose.maxDayAbs ? d.dose.maxDayAbs : dMin;
+  let cappedMax = d.dose.maxDayAbs && dMax > d.dose.maxDayAbs ? d.dose.maxDayAbs : dMax;
+  if (d.isPerDay) {
+    const div = getFreqDiv(d.dose.freq) || 1;
+    cappedMin /= div; cappedMax /= div;
+  }
+  // Per-dose max cap
+  if (d.dose.maxDayAbs && !d.isPerDay) {
+    // already capped above
+  }
+  return {min: cappedMin, max: cappedMax,
+          rawMin: d.dose.min*w, rawMax: d.dose.max*w};
+}
+
+function buildWeightDose(d, w) {
+  const dm = getDoseMgPerDosis(d, w);
+  const sameMinMax = Math.abs(dm.min - dm.max) < 0.05;
+  const capped = dm.rawMin > dm.min || dm.rawMax > dm.max;
+  let html = `<div><div class="res-sec-title">💊 Dosis Calculada</div><div class="dose-cards">`;
+
+  html += `<div class="dose-card primary">
+    <div class="dc-lbl">Por dosis${d.isPerDay?' (÷frec)':''}</div>
+    <div class="dc-val">${dm.min.toFixed(1)}${!sameMinMax?'–'+dm.max.toFixed(1):''}</div>
+    <div class="dc-unit">mg${capped?' ⚠️ máx':''}</div>
+  </div>`;
+
+  html += `<div class="dose-card">
+    <div class="dc-lbl">Rango mg/kg</div>
+    <div class="dc-val">${d.dose.min}${d.dose.min!==d.dose.max?'–'+d.dose.max:''}</div>
+    <div class="dc-unit">${d.dose.unit}</div>
+  </div>`;
+
+  if (d.dose.maxDayAbs) {
+    html += `<div class="dose-card">
+      <div class="dc-lbl">Dosis Máxima</div>
+      <div class="dc-val">${d.dose.maxDayAbs}</div>
+      <div class="dc-unit">mg/día límite</div>
+    </div>`;
+  }
+  html += '</div>';
+  if (capped) html += `<div class="note warn">📊 La dosis calculada por peso (${dm.rawMin.toFixed(0)}–${dm.rawMax.toFixed(0)} mg) supera el máximo — se aplica límite de ${dm.min.toFixed(0)}–${dm.max.toFixed(0)} mg.</div>`;
+  html += '</div>';
+  return html;
+}
+
+function buildOseltamivirDose(d, w) {
+  let dosis = 30, label = '< 15 kg';
+  if (w >= 40) { dosis=75; label='≥ 40 kg'; }
+  else if (w >= 23) { dosis=60; label='23-40 kg'; }
+  else if (w >= 15) { dosis=45; label='15-23 kg'; }
+  return `<div><div class="res-sec-title">💊 Dosis Oseltamivir (c/12h × 5 días)</div>
+  <div class="dose-cards">
+    <div class="dose-card primary"><div class="dc-lbl">Dosis c/12h (${label})</div>
+      <div class="dc-val">${dosis}</div><div class="dc-unit">mg — dos veces al día × 5 días</div>
+    </div>
+  </div></div>`;
+}
+
+function buildFixedDose(d, w) {
+  const dose = w <= 10 ? 100000 : 200000;
+  if (d.id === 18) {
+    return `<div><div class="res-sec-title">💊 Dosis Nistatina</div>
+    <div class="dose-cards">
+      <div class="dose-card primary"><div class="dc-lbl">Por dosis (${w<=10?'RN/lactante':'Niño'})</div>
+        <div class="dc-val">${dose.toLocaleString()}</div><div class="dc-unit">UI c/6h</div>
+      </div>
+    </div></div>`;
+  }
+  return '';
+}
+
+function calcVol(d, c, w) {
+  if (c.u.includes('mg/tab')) {
+    const dm = getDoseMgPerDosis(d, w);
+    if (!dm) return '';
+    const t = dm.min / c.c;
+    const t2 = dm.max / c.c;
+    const same = Math.abs(t-t2) < 0.05;
+    return `${t.toFixed(1)}${!same?'–'+t2.toFixed(1):''} tab`;
+  }
+  if (c.u.includes('mg/puff')) return '';
+  if (c.u.includes('UI/mL')) {
+    const dose = w <= 10 ? 100000 : 200000;
+    return `${(dose / c.c).toFixed(1)} mL`;
+  }
+  if (d.specialCalc === 'oseltamivir') {
+    let dosis = 30;
+    if (w >= 40) dosis=75; else if (w >= 23) dosis=60; else if (w >= 15) dosis=45;
+    return `${(dosis / c.c).toFixed(1)} mL`;
+  }
+  if (d.dose.fixed) return '';
+  const dm = getDoseMgPerDosis(d, w);
+  if (!dm) return '';
+  const v1 = dm.min / c.c, v2 = dm.max / c.c;
+  const same = Math.abs(v1-v2) < 0.05;
+  return `${v1.toFixed(1)}${!same?'–'+v2.toFixed(1):''} mL`;
+}
+
+function buildSchedule(d, w) {
+  const SCHEDS = {
+    'c/4h':  ['6:00','10:00','14:00','18:00','22:00','02:00'],
+    'c/6h':  ['6:00','12:00','18:00','00:00'],
+    'c/8h':  ['6:00','14:00','22:00'],
+    'c/12h': ['8:00','20:00'],
+    'c/24h': ['8:00'],
+  };
+  let sched = null;
+  for (const [k,v] of Object.entries(SCHEDS)) {
+    if (d.dose.freq.includes(k)) { sched = v; break; }
+  }
+  if (!sched) return '';
+
+  const dm = (!d.dose.fixed && !d.specialCalc) ? getDoseMgPerDosis(d, w) : null;
+  let volStr = '';
+  if (dm && d.concs?.length) {
+    const c = d.concs[0];
+    if (!c.u.includes('mg/tab') && !c.u.includes('mg/puff') && !c.u.includes('UI/mL')) {
+      const v1 = dm.min/c.c, v2 = dm.max/c.c;
+      const same = Math.abs(v1-v2) < 0.05;
+      volStr = `${v1.toFixed(1)}${!same?'–'+v2.toFixed(1):''} mL`;
+    } else if (c.u.includes('mg/tab')) {
+      volStr = `${(dm.min/c.c).toFixed(1)} tab`;
+    } else {
+      volStr = `${dm.min.toFixed(0)}${dm.min!==dm.max?'–'+dm.max.toFixed(0):''} mg`;
+    }
+  }
+
+  return `<div><div class="res-sec-title">🕐 Horario (${d.dose.freq.split('×')[0].trim()})</div>
+  <div class="freq-pills">
+    ${sched.map(t => `<div class="freq-pill"><div class="fp-time">${t}</div><div class="fp-vol">${volStr || '—'}</div></div>`).join('')}
+  </div></div>`;
+}
+</script>
+</body>
+</html>
